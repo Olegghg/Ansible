@@ -1,0 +1,35 @@
+---
+- name: docker
+  hosts: demo 
+  tasks:
+    - name: sourcelist
+      apt_repository:
+        repo: deb http://mirror.yandex.ru/debian bullseye main
+        state: present
+    - name: preinstall      
+      apt: 
+        pkg: 
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+        update_cache: true
+    - name: add key
+      shell:
+        curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    - name: somerepo | apt source
+      apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable"
+        state: present     
+        update_cache: yes
+    - name: install
+      apt:
+        pkg:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        state: present
+    - name: postinstall
+      
