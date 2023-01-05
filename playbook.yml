@@ -1,4 +1,4 @@
----
+000000000000000000---
 - name: docker
   hosts: demo 
   tasks:
@@ -15,6 +15,10 @@
           - lsb-release
         state: present
         update_cache: true
+    - name: rm key
+      file:
+        dest: /etc/apt/keyrings/docker.gpg
+        state: absent
     - name: add key
       shell:
         curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
@@ -32,4 +36,13 @@
           - docker-compose-plugin
         state: present
     - name: postinstall
-      
+      block:
+        - name: Create group
+          group: 
+            name: docker
+            state: present
+        - name: Add user in grp
+          user:
+            name: user
+            groups: docker
+            append: yes
